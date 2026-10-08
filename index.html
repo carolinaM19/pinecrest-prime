@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Pinecrest Prime LLC</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one working column, sticky tab bar; summary tiles, then attention list, then detail tables. Pine green = money in, violet = money out. */
+:root{
+  --bg:#F4F6F4; --panel:#FFFFFF; --sunk:#EBEFEC; --fg:#16201B; --muted:#5B6A62; --line:#D9E0DB;
+  --accent:#1F5E47; --accent-fg:#FFFFFF; --in:#1E8A5C; --out:#6A5BD0;
+  --ok:#1E7A4F; --ok-bg:#E2F2E8; --warn:#9A5B00; --warn-bg:#FBEFD9; --bad:#B3261E; --bad-bg:#FBE4E1; --info-bg:#E8ECF9; --info:#3B4BA8;
+  --f-display:"Familjen Grotesk","Helvetica Neue",Arial,sans-serif; --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101512; --panel:#171E1A; --sunk:#1D2621; --fg:#E5ECE8; --muted:#97A69E; --line:#2A3530;
+  --accent:#7CC8A6; --accent-fg:#0E1A14; --in:#3FA877; --out:#8F82F0;
+  --ok:#6FD39E; --ok-bg:#16301F; --warn:#F0B35A; --warn-bg:#33270F; --bad:#FF8A80; --bad-bg:#3A1A17; --info-bg:#1E2340; --info:#AAB4FF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101512; --panel:#171E1A; --sunk:#1D2621; --fg:#E5ECE8; --muted:#97A69E; --line:#2A3530;
+  --accent:#7CC8A6; --accent-fg:#0E1A14; --in:#3FA877; --out:#8F82F0;
+  --ok:#6FD39E; --ok-bg:#16301F; --warn:#F0B35A; --warn-bg:#33270F; --bad:#FF8A80; --bad-bg:#3A1A17; --info-bg:#1E2340; --info:#AAB4FF; color-scheme:dark}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:20px 60px}
+@media (max-width:520px){.wrap{padding-inline:16px}}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:26px;font-weight:700}
+h2{font-size:18px;font-weight:600}
+h3{font-size:15px;font-weight:600}
+.num,td.amt,.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+a{color:var(--accent)}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
+.sub{color:var(--muted);margin-top:2px}
+.syncbox{font-size:12.5px;color:var(--muted);text-align:right}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:20px;padding-top:4px}
+nav.tabs button{font:600 14px var(--f-body);background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:10px 12px;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+nav.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section.view{display:grid;gap:22px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:4px;min-width:0}
+.tile .label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.tile .big{font-family:var(--f-display);font-size:28px;font-weight:600;font-variant-numeric:tabular-nums}
+.tile .foot{font-size:12.5px;color:var(--muted)}
+.meter{height:6px;border-radius:3px;background:var(--sunk);overflow:hidden;margin-top:4px}
+.meter i{display:block;height:100%;background:var(--in);border-radius:3px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.panel-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:12px}
+.two{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px}
+@media (max-width:860px){.two{grid-template-columns:1fr}}
+.alerts{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.alert{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;padding:10px 12px;border-radius:8px;background:var(--sunk)}
+.alert .t{font-weight:600}
+.alert .d{color:var(--muted);font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;letter-spacing:.02em}
+.p-ok{background:var(--ok-bg);color:var(--ok)} .p-warn{background:var(--warn-bg);color:var(--warn)} .p-bad{background:var(--bad-bg);color:var(--bad)} .p-info{background:var(--info-bg);color:var(--info)} .p-mute{background:var(--sunk);color:var(--muted)}
+button.btn{font:600 13px var(--f-body);border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:7px 12px;cursor:pointer}
+button.btn:hover{border-color:var(--muted)}
+button.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button.btn.danger{color:var(--bad)}
+button.btn.sm{padding:4px 9px;font-size:12px}
+button.link{background:none;border:0;color:var(--accent);font:600 12.5px var(--f-body);cursor:pointer;padding:2px 4px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;white-space:nowrap;background:var(--panel);position:sticky;top:0}
+td.amt,th.amt{text-align:right;white-space:nowrap}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:var(--sunk)}
+tr.review td{background:color-mix(in srgb,var(--warn-bg) 60%,transparent)}
+.desc{max-width:360px;color:var(--muted);font-size:13px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input,select,textarea{font:14px var(--f-body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent)}
+label.f{display:grid;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.form .wide{grid-column:1/-1}
+.drawer{border:1px solid var(--accent);border-radius:var(--r);background:var(--panel);padding:16px;display:grid;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.spacer{flex:1}
+/* income grid */
+table.grid td,table.grid th{padding:5px 3px;text-align:center}
+table.grid td.deal,table.grid th.deal{text-align:left;min-width:150px;position:sticky;left:0;background:var(--panel);z-index:1}
+.cell{display:grid;gap:1px;justify-items:center;min-width:54px;padding:5px 4px;border-radius:6px;border:1px solid transparent;cursor:pointer;background:none;font:inherit;color:inherit;width:100%}
+.cell:hover{border-color:var(--line)}
+.cell .a{font-family:var(--f-mono);font-size:11.5px}
+.c-rec{background:var(--ok-bg);color:var(--ok)} .c-pre{background:var(--info-bg);color:var(--info)} .c-late{background:var(--bad-bg);color:var(--bad)} .c-due{background:var(--warn-bg);color:var(--warn)} .c-up{color:var(--muted)} .c-na{color:var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted);align-items:center}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto}
+.chart text{fill:var(--muted);font:11px var(--f-body)}
+.tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);font-size:12px;padding:6px 8px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-110%);z-index:3}
+.cats{display:grid;gap:6px}
+.cat{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center;font-size:13px}
+@media (max-width:520px){.cat{grid-template-columns:110px 1fr 80px}}
+.bar{height:10px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--out);border-radius:0 3px 3px 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:6px;align-content:start;min-width:0}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;overflow-wrap:anywhere}
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:28px 16px;text-align:center;display:grid;gap:8px;justify-items:center;background:var(--panel)}
+.drop.over{border-color:var(--accent);background:var(--sunk)}
+.empty{padding:24px;text-align:center;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:8px;font-weight:500;z-index:20;max-width:calc(100% - 32px)}
+ol.steps{margin:0;padding-left:20px;display:grid;gap:4px}
+.share{display:flex;gap:3px;align-items:flex-end;min-height:64px;padding-top:6px}
+.share div{flex:1;display:grid;gap:3px;justify-items:center;font-size:10.5px;color:var(--muted)}
+.share b{display:block;width:100%;max-width:26px;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px}
+@media (prefers-reduced-motion:no-preference){.cell,.btn{transition:border-color .15s,background .15s}}
+.monthpick{display:grid;gap:12px}
+.pick-label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.chips{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px}
+@media (max-width:700px){.chips{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.chip{font:600 13px var(--f-body);padding:8px 0 6px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer;display:grid;gap:3px;justify-items:center}
+.chip:hover:not(:disabled){border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.chip:disabled{color:var(--line);cursor:default}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:transparent}
+.chip .dot.ok{background:var(--ok)} .chip .dot.wait{background:var(--warn)} .chip .dot.late{background:var(--bad)}
+.chip[aria-pressed="true"] .dot{box-shadow:0 0 0 2px var(--accent-fg)}
+.monthhead{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:4px}
+.monthhead h2{font-size:24px}
+.monthhead p{margin:0;color:var(--muted);max-width:70ch}
+.monthhead p b{color:var(--fg)}
+.checklist{list-style:none;margin:0;padding:0;display:grid}
+.checklist li.item{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.checklist li.item:last-child{border-bottom:0}
+.mark{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;margin-top:1px}
+.m-ok{background:var(--ok-bg);color:var(--ok)} .m-wait{background:var(--sunk);color:var(--muted)} .m-late{background:var(--bad-bg);color:var(--bad)} .m-pre{background:var(--info-bg);color:var(--info)}
+.checklist .t{font-weight:600}
+.checklist .s{color:var(--muted);font-size:12.5px}
+.checklist .v{text-align:right;white-space:nowrap}
+.partner{display:grid;gap:12px;margin-bottom:22px}
+.partner-h{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between}
+.folder{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-fg);text-decoration:none;font-weight:600;font-size:13px;padding:7px 12px;border-radius:8px}
+.docs{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.docs li{display:flex;gap:8px;align-items:center;font-size:13px}
+.docs li a{overflow-wrap:anywhere}
+.dealstat{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;font-size:13px}
+.dealstat b{font-family:var(--f-display);font-size:20px;font-weight:600}
+</style><style>
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+.login{min-height:100vh;display:grid;place-items:center;padding:16px;background:var(--bg)}
+.login-card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px 24px;display:grid;gap:14px}
+.login-card form{display:grid;gap:10px}
+.login-card input[type=password]{font-size:16px;padding:10px 12px}
+.login-card button{font:600 15px var(--f-body);padding:11px;border-radius:8px;border:0;background:var(--accent);color:var(--accent-fg);cursor:pointer}
+.whobar{display:flex;gap:10px;align-items:center;justify-content:flex-end;font-size:12.5px;color:var(--muted)}
+#addOther,#addTransfer,#addVendor,#addExpense,#tab-import,#v-import{display:none!important}
+button.cell:disabled{opacity:1;cursor:default}
+</style>
+</head>
+<body>
+
+
+<div class="login" id="login" hidden>
+  <div class="login-card">
+    <h1>Pinecrest Prime LLC</h1>
+    <p class="muted" style="margin:0">Enter the password to see Luca’s income, house expenses and documents.</p>
+    <form id="loginForm">
+      <label class="f" for="loginPw">Password</label>
+      <input id="loginPw" type="password" autocomplete="current-password" required>
+      <label class="row small" style="gap:6px;font-weight:500"><input type="checkbox" id="remember"> Keep me signed in on this device</label>
+      <button id="loginBtn" type="submit">Open</button>
+    </form>
+    <p class="small" id="loginMsg" style="margin:0" role="status"></p>
+  </div>
+</div>
+<div id="appwrap" hidden>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Pinecrest Prime LLC</h1>
+      <div class="sub">Luca’s investment income and house expenses: what came in, what went out, and what’s still pending</div>
+    </div>
+    <div><div class="syncbox" id="syncbox">Loading…</div><div class="whobar"><span>View only</span><button class="link" id="signout" type="button">Lock</button></div></div>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-tab="overview" aria-selected="true" id="tab-overview">Overview</button>
+    <button role="tab" data-tab="income" aria-selected="false" id="tab-income">Investments &amp; documents</button>
+    <button role="tab" data-tab="expenses" aria-selected="false" id="tab-expenses">All expenses</button>
+    <button role="tab" data-tab="bills" aria-selected="false" id="tab-bills">Bills &amp; contacts</button>
+    <button role="tab" data-tab="import" aria-selected="false" id="tab-import">Import</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section class="view" id="v-overview">
+    <div class="panel">
+      <div class="panel-h"><h2>Payments by month</h2>
+        <div class="legend"><span class="pill c-rec">Received</span><span class="pill c-pre">Prepaid</span><span class="pill c-due">Due</span><span class="pill c-late">Late</span><span class="pill p-mute">Upcoming</span><span>✓ = on the bank statement</span></div></div>
+      <p class="muted small" style="margin:0 0 10px">Each investment, month by month. Tap a month name to see that month’s details below.</p>
+      <div class="scroll"><table class="grid" id="incomeGrid"><tbody><tr><td class="empty">Loading deals…</td></tr></tbody></table></div>
+    </div>
+    <div id="payEditor" hidden></div>
+    <div class="monthpick panel">
+      <div class="pick-label">Pick a month to see what was received and paid</div>
+      <div class="chips" id="mChips" role="group" aria-label="Month"></div>
+      <div class="legend"><span><i class="sw" style="background:var(--ok);border-radius:50%"></i>All income arrived</span><span><i class="sw" style="background:var(--warn);border-radius:50%"></i>Still waiting on a payment</span><span><i class="sw" style="background:var(--bad);border-radius:50%"></i>A payment is missing</span></div>
+      <div class="monthhead">
+        <h2 id="mTitle">This month</h2>
+        <p id="mSummary"></p>
+      </div>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <div class="panel-h"><h2>Money coming in</h2><span class="num small" id="inSum"></span></div>
+        <ul class="checklist" id="inList"><li class="empty">Loading…</li></ul>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>House bills</h2><span class="num small" id="billSum"></span></div>
+        <ul class="checklist" id="billList"><li class="empty">Loading…</li></ul>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><h2>Other house spending</h2><span class="num small" id="otherSum"></span></div>
+      <ul class="checklist" id="otherList"><li class="empty">Loading…</li></ul>
+    </div>
+    <h2 style="margin-top:6px">The year so far</h2>
+    <div class="tiles" id="tiles">
+      <div class="tile"><span class="label">Income received this year</span><span class="big">—</span><span class="foot">Loading your records…</span></div>
+      <div class="tile"><span class="label">Income this month</span><span class="big">—</span><span class="foot">&nbsp;</span></div>
+      <div class="tile"><span class="label">Spent this month</span><span class="big">—</span><span class="foot">&nbsp;</span></div>
+      <div class="tile"><span class="label">Spent this year</span><span class="big">—</span><span class="foot">&nbsp;</span></div>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <div class="panel-h"><h2>Open items</h2><span class="muted small" id="alertCount"></span></div>
+        <ul class="alerts" id="alerts"><li class="empty">Items to follow up on will appear here.</li></ul>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2 id="chartTitle">Money in vs. money out</h2>
+          <div class="legend"><span><i class="sw" style="background:var(--in)"></i>Income, by date received</span><span><i class="sw" style="background:var(--out)"></i>Spent from Revolut</span></div></div>
+        <div class="chart" id="chart"><div class="empty">The monthly chart appears once records load.</div></div>
+        <div style="margin-top:18px">
+          <div class="panel-h" style="margin-bottom:6px"><h3>Share paid through Pinecrest Prime LLC (vs. Luca’s personal Revolut)</h3><span class="muted small">Goal: 100% each month</span></div>
+          <div class="share" id="share"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INCOME -->
+  <section class="view" id="v-income" hidden>
+    <div id="partners"><div class="empty">Loading investments…</div></div>
+    <div class="two">
+      <div class="panel">
+        <div class="panel-h"><h2>Other income</h2><button class="btn sm" id="addOther">Add</button></div>
+        <div id="otherForm" hidden></div>
+        <div class="scroll"><table id="otherTable"></table></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>Transfers out of the business account</h2><button class="btn sm" id="addTransfer">Add</button></div>
+        <div id="transferForm" hidden></div>
+        <div class="scroll"><table id="transferTable"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPENSES -->
+  <section class="view" id="v-expenses" hidden>
+    <div class="panel">
+      <div class="panel-h">
+        <div class="filters">
+          <select id="fMonth" aria-label="Month"></select>
+          <select id="fCat" aria-label="Category"></select>
+          <select id="fAcct" aria-label="Paid with"></select>
+          <input id="fText" type="search" placeholder="Search vendor or note" aria-label="Search">
+        </div>
+        <button class="btn primary" id="addExpense">Add expense</button>
+      </div>
+      <div id="expEditor" hidden></div>
+      <div class="row" style="margin-bottom:10px"><strong class="num" id="expTotal">—</strong><span class="muted small" id="expCount"></span></div>
+      <div class="two" style="margin-bottom:12px">
+        <div><h3 style="margin-bottom:8px">By category</h3><div class="cats" id="cats"></div></div>
+        <div><h3 style="margin-bottom:8px">By card or account</h3><div class="cats" id="accts"></div></div>
+      </div>
+      <div class="scroll"><table id="expTable"><tbody><tr><td class="empty">Loading expenses…</td></tr></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- BILLS -->
+  <section class="view" id="v-bills" hidden>
+    <div class="panel">
+      <div class="panel-h"><h2>Recurring bills</h2><span class="muted small">What comes due, how it is paid, and what to fix</span></div>
+      <div class="scroll"><table id="billsTable"></table></div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><h2>Service providers</h2><button class="btn sm" id="addVendor">Add</button></div>
+      <div id="vendorForm" hidden></div>
+      <div class="cards" id="vendorCards"></div>
+      <p class="muted small" style="margin:14px 0 0">Logins, passwords and the gate and alarm codes are not stored on this page. Keep them in a shared password manager.</p>
+    </div>
+  </section>
+
+  <!-- IMPORT -->
+  <section class="view" id="v-import" hidden>
+    <div class="two">
+      <div class="panel">
+        <h2 style="margin-bottom:8px">Bring in the Revolut Business statement</h2>
+        <ol class="steps small">
+          <li>In Revolut Business, open <b>Transactions</b> and choose <b>Statement</b>.</li>
+          <li>Pick the Pinecrest Prime USD account, the date range (for example last month), and <b>CSV</b>.</li>
+          <li>Drop the file here. Payments already logged are recognised and skipped.</li>
+        </ol>
+      </div>
+      <div class="drop" id="drop">
+        <strong>Drop the Revolut CSV here</strong>
+        <span class="muted small">or</span>
+        <label class="btn" for="fileIn" style="cursor:pointer">Choose file</label>
+        <input type="file" id="fileIn" accept=".csv,text/csv" hidden>
+        <span class="muted small" id="lastImport"></span>
+      </div>
+    </div>
+    <div id="importResult"></div>
+  </section>
+</div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="unlock.js"></script>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const el=(t,a={},...kids)=>{const n=document.createElement(t);for(const[k,v]of Object.entries(a)){if(v==null||v===false)continue;if(k==='class')n.className=v;else if(k==='text')n.textContent=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else if(k==='style')n.setAttribute('style',v);else n.setAttribute(k,v===true?'':v)}for(const c of kids.flat()){if(c==null||c===false)continue;n.append(c.nodeType?c:document.createTextNode(String(c)))}return n};
+const fmt=(n,dp)=>{if(n==null||isNaN(n))return '—';const d=dp==null?(Math.abs(n)%1?2:0):dp;return (n<0?'−$':'$')+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})};
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const CATS=['Utilities','Pool','Landscaping','Cleaning','Repairs & maintenance','Household','Furniture rental','Move-in','Candy (dog)','Meal prep','LLC & legal','Personal & health'];
+const ACCTS=['PPLLC Revolut card 0868','PPLLC Revolut – transfer',"Luca's personal Revolut (card 0505)","Luca's Cash App",'Privacy card 0662','Privacy card 5980','Mastercard 9604','Mastercard 3251','Wells Fargo','Venmo (Magda)'];
+const isMain=a=>/^PPLLC/.test(a||'');
+const isRev=a=>/Revolut/i.test(a||'');
+const ACCT_LABEL={'PPLLC Revolut card 0868':'Pinecrest Prime card ··0868','PPLLC Revolut – transfer':'Pinecrest Prime bank transfer',"Luca's personal Revolut (card 0505)":"Luca’s personal Revolut ··0505","Luca's Cash App":'Luca’s Cash App (paid by Luca)','Venmo (Magda)':'Venmo (Magda)'};
+const acctLabel=a=>ACCT_LABEL[a]||a||'—';
+const outCounted=e=>counted(e)&&isRev(e.account);
+const today=new Date();
+const curYM=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0');
+let YEAR=today.getFullYear();
+const ymOf=d=>(d||'').slice(0,7);
+const monthName=ym=>{const[y,m]=ym.split('-');return MONTHS[+m-1]+' '+y};
+const S={partners:[],expenses:[],deals:[],incomePayments:[],otherIncome:[],transfers:[],bills:[],vendors:[],rules:[],alerts:[],meta:{}};
+let db=null, canWrite=true, loaded=new Set();
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2600)}
+function fail(e){console.error(e);if(e&&e.code==='invalid_argument'){canWrite=false;toast('You can view this ledger but not change it.');renderAll()}else toast('That didn’t save. Check your connection and try again.')}
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+/* ---------- tabs ---------- */
+const TABS=['overview','income','expenses','bills','import'];
+function showTab(t){if(!TABS.includes(t))t='overview';for(const x of TABS){$('#v-'+x).hidden=x!==t;$('#tab-'+x).setAttribute('aria-selected',String(x===t))}try{localStorage.setItem('pl-tab',t)}catch(e){}}
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)showTab(b.dataset.tab)});
+{let t=null;const h=(location.hash||'').slice(1);if(TABS.includes(h))t=h;else{try{t=localStorage.getItem('pl-tab')}catch(e){}}showTab(t||'overview')}
+
+/* ---------- income logic ---------- */
+function monthsOfYear(){return MONTHS.map((_,i)=>YEAR+'-'+String(i+1).padStart(2,'0'))}
+function cellState(deal,ym){
+  const p=S.incomePayments.find(x=>x.dealId===deal.id&&x.month===ym);
+  if(p){if(p.status==='Prepaid')return{k:'pre',label:'Prepaid',p};if(p.status==='Skipped')return{k:'na',label:'Skipped',p};return{k:'rec',label:'Received',p}}
+  if(ym<(deal.startMonth||'0000'))return{k:'na',label:'—'};
+  if(deal.prepaidThrough&&ym<=deal.prepaidThrough)return{k:'pre',label:'Prepaid'};
+  if(ym<curYM)return{k:'late',label:'Late'};
+  if(ym===curYM)return{k:'due',label:'Due'};
+  return{k:'up',label:'Upcoming'};
+}
+const received=ps=>ps.filter(p=>p.status!=='Prepaid'&&p.status!=='Skipped').reduce((s,p)=>s+(+p.amount||0),0);
+function expectedFor(ym){let exp=0,got=0;for(const d of S.deals){const c=cellState(d,ym);if(c.k==='na'||c.k==='pre')continue;exp+=+d.expectedMonthly||0;if(c.k==='rec')got+=+c.p.amount||0}return{exp,got}}
+const counted=e=>e.status!=='Needs review';
+
+/* ---------- overview ---------- */
+function renderOverview(){
+  const yrPays=S.incomePayments.filter(p=>(p.month||'').startsWith(YEAR+''));
+  const yrIn=received(yrPays)+S.otherIncome.filter(o=>o.paid&&(o.paidOn||o.date||'').startsWith(YEAR+'')).reduce((s,o)=>s+(+o.amount||0),0);
+  const m=expectedFor(curYM);
+  const exps=S.expenses.filter(outCounted);
+  const spentM=exps.filter(e=>ymOf(e.date)===curYM).reduce((s,e)=>s+e.amount,0);
+  const spentY=exps.filter(e=>(e.date||'').startsWith(YEAR+'')).reduce((s,e)=>s+e.amount,0);
+  const nMonths=new Set(exps.filter(e=>(e.date||'').startsWith(YEAR+'')).map(e=>ymOf(e.date))).size||1;
+  const lateN=S.deals.reduce((n,d)=>n+monthsOfYear().filter(ym=>cellState(d,ym).k==='late').length,0);
+  const pct=m.exp?Math.min(100,Math.round(m.got/m.exp*100)):0;
+  const tiles=$('#tiles');tiles.replaceChildren(
+    tile('Income received this year',fmt(yrIn,0),`${lateN} late month${lateN===1?'':'s'} across deals`),
+    tile('Income this month',fmt(m.got,0),`of ${fmt(m.exp,0)} expected in ${monthName(curYM)}`,pct),
+    tile('Spent from Revolut this month',fmt(spentM,0),`${exps.filter(e=>ymOf(e.date)===curYM).length} payments in ${monthName(curYM)}`),
+    tile('Spent from Revolut this year',fmt(spentY,0),`About ${fmt(spentY/nMonths,0)} a month`));
+  function tile(l,b,f,meter){return el('div',{class:'tile'},el('span',{class:'label',text:l}),el('span',{class:'big',text:b}),meter!=null?el('div',{class:'meter','aria-hidden':'true'},el('i',{style:`width:${meter}%`})):null,el('span',{class:'foot',text:f}))}
+  // alerts
+  const auto=[];
+  for(const d of S.deals){const late=monthsOfYear().filter(ym=>cellState(d,ym).k==='late');if(late.length&&d.id!=='nbr-rent')auto.push({kind:'income',title:`${d.name} – ${d.stream}: ${late.length===1?monthName(late[0]):late.length+' months'} not marked received`,detail:`Expected ${fmt(d.expectedMonthly)} a month. Record it on the Income tab once it lands.`,auto:true})}
+  const rev=S.expenses.filter(e=>e.status==='Needs review'&&!/March tab/.test(e.note||''));
+  if(rev.length)auto.push({kind:'expense',title:`${rev.length} expense${rev.length>1?'s':''} added automatically need a quick check`,detail:'Open House expenses and look for the yellow rows.',auto:true});
+  const list=[...S.alerts.filter(a=>!a.resolved).sort((a,b)=>(b.date||'').localeCompare(a.date||'')),...auto];
+  $('#alertCount').textContent=list.length?list.length+' open':'All clear';
+  const ul=$('#alerts');ul.replaceChildren(...(list.length?list.map(a=>el('li',{class:'alert'},
+    el('span',{class:'pill '+({income:'p-ok',bill:'p-warn',expense:'p-info'}[a.kind]||'p-mute'),text:{income:'Income',bill:'Bill',expense:'Expense'}[a.kind]||'Note'}),
+    el('div',{},el('div',{class:'t',text:a.title}),a.detail?el('div',{class:'d',text:a.detail}):null,a.link?el('a',{href:a.link,target:'_blank',rel:'noopener',class:'small',text:'Open email'}):null),
+    a.auto?el('span'):el('button',{class:'link',disabled:!canWrite,onclick:()=>resolveAlert(a.id),text:'Done'}))):[el('li',{class:'empty',text:'Nothing to follow up on.'})]));
+  drawChart();drawShare();
+}
+async function resolveAlert(id){try{await db.doc('alerts/'+id).update({resolved:true,resolvedAt:new Date().toISOString()});toast('Marked done')}catch(e){fail(e)}}
+function drawChart(){
+  const box=$('#chart');const months=monthsOfYear().filter(ym=>ym<=curYM);
+  $('#chartTitle').textContent=`Money in vs. money out, ${YEAR}`;
+  const inc=months.map(ym=>received(S.incomePayments.filter(p=>((p.date||p.month)||'').slice(0,7)===ym)));
+  const out=months.map(ym=>S.expenses.filter(e=>outCounted(e)&&ymOf(e.date)===ym).reduce((s,e)=>s+e.amount,0));
+  const W=Math.max(320,box.clientWidth||600),H=230,L=46,R=8,T=10,B=24;
+  const max=Math.max(1000,...inc,...out);const step=max>20000?10000:max>8000?5000:2000;const top=Math.ceil(max/step)*step;
+  const y=v=>T+(H-T-B)*(1-v/top);const band=(W-L-R)/months.length;const bw=Math.max(4,Math.min(16,band/2-5));
+  const ns='http://www.w3.org/2000/svg';const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width','100%');svg.setAttribute('role','img');svg.setAttribute('aria-label','Monthly income received and money spent');
+  const add=(tag,at)=>{const n=document.createElementNS(ns,tag);for(const k in at)n.setAttribute(k,at[k]);svg.append(n);return n};
+  for(let v=0;v<=top;v+=step){add('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:'var(--line)','stroke-width':1});const t=add('text',{x:L-6,y:y(v)+4,'text-anchor':'end'});t.textContent=v?'$'+(v/1000)+'k':'$0'}
+  const barPath=(x,v)=>{const h=y(0)-y(v);if(h<=0)return'';const r=Math.min(4,h,bw/2);return`M${x},${y(0)}V${y(v)+r}Q${x},${y(v)} ${x+r},${y(v)}H${x+bw-r}Q${x+bw},${y(v)} ${x+bw},${y(v)+r}V${y(0)}Z`};
+  const tip=el('div',{class:'tip',hidden:true});
+  months.forEach((ym,i)=>{const cx=L+band*i+band/2;
+    add('path',{d:barPath(cx-bw-1,inc[i]),fill:'var(--in)'});add('path',{d:barPath(cx+1,out[i]),fill:'var(--out)'});
+    const t=add('text',{x:cx,y:H-6,'text-anchor':'middle'});t.textContent=MONTHS[+ym.slice(5)-1];
+    const hit=add('rect',{x:L+band*i,y:T,width:band,height:H-T-B,fill:'transparent'});
+    hit.addEventListener('mouseenter',()=>{tip.hidden=false;tip.textContent=`${monthName(ym)} · in ${fmt(inc[i],0)} · out ${fmt(out[i],0)}`;const bx=box.getBoundingClientRect(),sx=bx.width/W;let px=cx*sx;px=Math.max(90,Math.min(bx.width-90,px));tip.style.left=px+'px';tip.style.top=(y(Math.max(inc[i],out[i]))*sx)+'px'});
+    hit.addEventListener('mouseleave',()=>tip.hidden=true);
+  });
+  add('line',{x1:L,x2:W-R,y1:y(0),y2:y(0),stroke:'var(--muted)','stroke-width':1});
+  box.replaceChildren(svg,tip);
+}
+function drawShare(){
+  const months=monthsOfYear().filter(ym=>ym<=curYM);
+  $('#share').replaceChildren(...months.map(ym=>{const xs=S.expenses.filter(e=>outCounted(e)&&ymOf(e.date)===ym);const tot=xs.reduce((s,e)=>s+e.amount,0);const main=xs.filter(e=>isMain(e.account)).reduce((s,e)=>s+e.amount,0);const p=tot?Math.round(main/tot*100):0;
+    return el('div',{title:`${monthName(ym)}: ${p}% of ${fmt(tot,0)} paid through Pinecrest Prime LLC`},el('span',{class:'num',text:p+'%'}),el('b',{style:`height:${Math.max(2,p*0.26)}px`}),el('span',{text:MONTHS[+ym.slice(5)-1]}))}));
+}
+
+
+/* ---------- this month ---------- */
+let VM=curYM;
+const shiftYM=(ym,n)=>{let[y,m]=ym.split('-').map(Number);m+=n;while(m<1){m+=12;y--}while(m>12){m-=12;y++}return y+'-'+String(m).padStart(2,'0')};
+function monthDot(ym){if(ym>curYM)return'';const lateInc=S.deals.some(d=>cellState(d,ym).k==='late');if(lateInc)return'late';const waiting=S.deals.some(d=>cellState(d,ym).k==='due');return waiting?'wait':'ok'}
+function renderChips(){const box=$('#mChips');box.replaceChildren(...monthsOfYear().map(ym=>{const dot=monthDot(ym);return el('button',{class:'chip','aria-pressed':String(ym===VM),disabled:ym>curYM,title:ym>curYM?'Not yet':monthName(ym),onclick:()=>{VM=ym;renderMonth();renderIncome()}},el('span',{text:MONTHS[+ym.slice(5)-1]}),el('span',{class:'dot '+dot,'aria-hidden':'true'}))}),);}
+const fmtDay=d=>{if(!d)return'';const x=new Date(d+'T12:00:00');return isNaN(x)?d:x.toLocaleDateString('en-US',{month:'short',day:'numeric'})};
+function item(state,title,sub,value){const sym={ok:'✓',wait:'…',late:'!',pre:'↻'}[state];return el('li',{class:'item'},el('span',{class:'mark m-'+state,'aria-hidden':'true',text:sym}),el('div',{},el('div',{class:'t',text:title}),sub?el('div',{class:'s',text:sub}):null),el('div',{class:'v num',text:value||''}))}
+function renderMonth(){
+  renderChips();
+  const full=new Date(VM+'-15T12:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  $('#mTitle').textContent=full+(VM===curYM?' (this month)':'');
+  // income
+  const deals=[...S.deals].sort((a,b)=>(a.order||0)-(b.order||0));
+  let got=0,exp=0;const ins=[];
+  for(const d of deals){const c=cellState(d,VM);if(c.k==='na')continue;
+    const name=`${d.name} · ${d.stream}`;
+    if(c.k==='rec'){got+=+c.p.amount||0;exp+=+d.expectedMonthly||0;ins.push(item('ok',name,`Received${c.p.date?' '+fmtDay(c.p.date):''}${c.p.receivedIn?' · '+c.p.receivedIn:''}${c.p.bankMatch?' · on bank statement':''}`,fmt(+c.p.amount)))}
+    else if(c.k==='pre')ins.push(item('pre',name,d.prepaidThrough?`Prepaid through ${monthName(d.prepaidThrough)}`:'Prepaid',''));
+    else{exp+=+d.expectedMonthly||0;ins.push(item(c.k==='late'?'late':'wait',name,c.k==='late'?'Not received – late':`Not received yet${d.dueDay?` · usually arrives around the ${d.dueDay}th`:''}`,fmt(d.expectedMonthly)))}}
+  const oth=S.otherIncome.filter(o=>ymOf(o.date)===VM);
+  for(const o of oth)ins.push(item(o.paid?'ok':'wait',`${o.client} · ${o.what}`,o.paid?'Paid':(o.invoiced?'Invoiced, not paid yet':'Not invoiced yet'),fmt(+o.amount)));
+  $('#inList').replaceChildren(...(ins.length?ins:[el('li',{class:'empty',text:'No deal payments expected this month.'})]));
+  $('#inSum').textContent=exp?`${fmt(got,0)} of ${fmt(exp,0)}`:fmt(got,0);
+  // bills
+  const mexp=S.expenses.filter(e=>counted(e)&&ymOf(e.date)===VM);
+  const billVendors=new Set(S.bills.map(b=>b.vendor));
+  const bills=[...S.bills].sort((a,b)=>(a.order||0)-(b.order||0));let billTot=0;const bl=[];
+  for(const b of bills){const paid=mexp.filter(e=>e.vendor===b.vendor);const tot=paid.reduce((a,e)=>a+e.amount,0);billTot+=tot;
+    const svc=`${b.vendor} · ${b.service}`;
+    if(paid.length){bl.push(item('ok',svc,paid.length>1?`${paid.length} payments: ${paid.map(e=>fmtDay(e.date)).join(', ')}`:`Paid ${fmtDay(paid[0].date)} · ${acctLabel(paid[0].account)}`,fmt(tot)))}
+    else if(/Monthly|Weekly/.test(b.frequency)){const past=VM<curYM;bl.push(item(past?'late':'wait',svc,past?'No payment recorded this month':`Not paid yet${b.dueHint?' · '+b.dueHint:''}${b.autopay?' · autopay':''}`,b.typical||''))}
+  }
+  const quiet=bills.filter(b=>!/Monthly|Weekly/.test(b.frequency)&&!mexp.some(e=>e.vendor===b.vendor)).map(b=>b.vendor);
+  if(quiet.length)bl.push(el('li',{class:'s',style:'padding-top:8px',text:'Not due this month: '+quiet.join(', ')}));
+  $('#billList').replaceChildren(...(bl.length?bl:[el('li',{class:'empty',text:'No bills set up.'})]));
+  $('#billSum').textContent=fmt(billTot)+' paid';
+  // other spending
+  const other=mexp.filter(e=>!billVendors.has(e.vendor)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const otTot=other.reduce((a,e)=>a+e.amount,0);
+  $('#otherList').replaceChildren(...(other.length?other.map(e=>item('ok',e.vendor,`${fmtDay(e.date)} · ${e.description||e.category} · ${acctLabel(e.account)}`,fmt(e.amount))):[el('li',{class:'empty',text:'No other spending recorded this month.'})]));
+  $('#otherSum').textContent=fmt(otTot)+' total';
+  const pending=S.expenses.filter(e=>ymOf(e.date)===VM&&e.status==='Needs review').length;
+  const waitingN=ins.length-0;const notIn=S.deals.filter(d=>['due','late'].includes(cellState(d,VM).k)).length;
+  const sum=$('#mSummary');sum.replaceChildren('Luca received ',el('b',{text:fmt(got,0)}),exp?` of ${fmt(exp,0)} expected`:'',notIn?` (${notIn} payment${notIn>1?'s':''} still ${VM<curYM?'missing':'to come'})`:' (everything expected has arrived)','. The house cost ',el('b',{text:fmt(billTot+otTot,0)}),` this month: ${fmt(billTot,0)} in regular bills and ${fmt(otTot,0)} in other spending.`,pending?` ${pending} payment${pending>1?'s':''} still need a check.`:'');
+}
+
+/* ---------- partners & documents ---------- */
+function docList(path,docs){
+  docs=Array.isArray(docs)?docs:[];
+  const ul=el('ul',{class:'docs'},...docs.map((d,i)=>el('li',{},el('span',{'aria-hidden':'true',text:'📄'}),el('a',{href:d.url,target:'_blank',rel:'noopener',text:d.title||d.url}),
+    canWrite?el('button',{class:'link',style:'color:var(--muted)','aria-label':'Remove '+(d.title||'link'),onclick:async()=>{const nd=docs.filter((_,j)=>j!==i);await saveDoc(path,{docs:nd},true)},text:'×'}):null)));
+  if(!docs.length)ul.append(el('li',{class:'muted',text:'No documents linked yet.'}));
+  const wrap=el('div',{style:'display:grid;gap:6px'},ul);
+  if(canWrite){const form=el('div',{class:'row',hidden:true});const t=el('input',{placeholder:'Name (e.g. Loan agreement)','aria-label':'Document name',style:'flex:1;min-width:140px'});const u=el('input',{type:'url',placeholder:'Paste Google Drive link','aria-label':'Document link',style:'flex:2;min-width:180px'});
+    form.append(t,u,el('button',{class:'btn sm primary',onclick:async()=>{if(!/^https?:\/\//.test(u.value.trim())){toast('Paste a full link starting with https://');return}await saveDoc(path,{docs:[...docs,{title:t.value.trim()||'Document',url:u.value.trim()}]},true)},text:'Add'}));
+    wrap.append(form,el('button',{class:'link',style:'justify-self:start',onclick:()=>{form.hidden=!form.hidden;if(!form.hidden)t.focus()},text:'+ Add document link'}))}
+  return wrap;
+}
+function folderBtn(p){
+  if(p.folder)return el('div',{class:'row'},el('a',{class:'folder',href:p.folder,target:'_blank',rel:'noopener',text:'Open Google Drive folder ↗'}),canWrite?el('button',{class:'link',style:'color:var(--muted)',onclick:()=>editFolder(p),text:'Change'}):null);
+  return canWrite?el('button',{class:'btn sm',onclick:()=>editFolder(p),text:'+ Add Google Drive folder'}):el('span',{class:'muted small',text:'No folder linked'});
+}
+function editFolder(p){const box=$('#pf-'+p.id);box.hidden=false;const u=el('input',{type:'url',value:p.folder||'',placeholder:'https://drive.google.com/drive/folders/…','aria-label':'Drive folder link',style:'flex:1;min-width:220px'});
+  box.replaceChildren(el('div',{class:'row'},u,el('button',{class:'btn sm primary',onclick:async()=>{if(u.value&&!/^https?:\/\//.test(u.value.trim())){toast('Paste a full link starting with https://');return}await saveDoc('partners/'+p.id,{folder:u.value.trim()},true);box.hidden=true},text:'Save'}),el('button',{class:'btn sm',onclick:()=>box.hidden=true,text:'Cancel'})));u.focus()}
+function dealCard(d){
+  const c=cellState(d,curYM);const ytd=received(S.incomePayments.filter(p=>p.dealId===d.id&&p.month.startsWith(YEAR+'')));
+  const stat={rec:['c-rec',`${monthName(curYM)}: received ${fmt(+(c.p&&c.p.amount)||0)}`],pre:['c-pre',d.prepaidThrough?`Prepaid through ${monthName(d.prepaidThrough)}`:'Prepaid'],late:['c-late',`${monthName(curYM)}: late`],due:['c-due',`${monthName(curYM)}: not received yet`],up:['p-mute','Starts '+monthName(d.startMonth||curYM)],na:['p-mute',d.startMonth>'2090'?'No fixed schedule':'Not started']}[c.k];
+  return el('div',{class:'card'},
+    el('div',{class:'row'},el('h3',{text:d.stream}),el('span',{class:'spacer'}),el('span',{class:'pill '+stat[0],text:stat[1]})),
+    el('div',{class:'dealstat'},el('span',{},el('b',{text:fmt(ytd,0)}),' received in '+YEAR),d.expectedMonthly?el('span',{class:'muted',text:`Expected ${fmt(d.expectedMonthly)}/mo`}):null),
+    el('dl',{class:'kv'},
+      d.invested?[el('dt',{text:'Invested'}),el('dd',{class:'num',text:fmt(d.invested,0)})]:null,
+      d.rate?[el('dt',{text:'Rate'}),el('dd',{text:Math.round(d.rate*10000)/100+'%'})]:null,
+      d.address?[el('dt',{text:'Property'}),el('dd',{text:d.address})]:null,
+      d.dueDay?[el('dt',{text:'Arrives'}),el('dd',{text:`Around the ${d.dueDay}th of each month`})]:null),
+    d.notes?el('div',{class:'muted small',text:d.notes}):null,
+    Array.isArray(d.properties)&&d.properties.length?el('details',{},el('summary',{class:'small',style:'cursor:pointer;font-weight:600',text:`${d.properties.length} properties`}),
+      el('div',{class:'scroll'},el('table',{class:'small'},el('tbody',{},...d.properties.map(pr=>el('tr',{},el('td',{text:pr.name}),el('td',{class:'amt',text:fmt(pr.purchase,0)}),el('td',{class:'amt',title:'Monthly mortgage payment',text:fmt(pr.mortgage)+'/mo'}))))))):null,
+    Array.isArray(d.wires)&&d.wires.length?el('details',{},el('summary',{class:'small',style:'cursor:pointer;font-weight:600',text:`Money sent (${fmt(d.wires.reduce((a,w)=>a+w.amount,0),0)})`}),
+      el('div',{class:'scroll'},el('table',{class:'small'},el('tbody',{},...d.wires.map(w=>el('tr',{},el('td',{class:'num',text:w.date}),el('td',{text:w.purpose}),el('td',{class:'amt',text:fmt(w.amount,0)}))))))):null,
+    el('div',{},el('div',{class:'small',style:'font-weight:600;margin:4px 0',text:'Documents'}),docList('deals/'+d.id,d.docs)));
+}
+function renderPartners(deals){
+  const box=$('#partners');const parts=[...S.partners].sort((a,b)=>(a.order||0)-(b.order||0));
+  const groups=parts.map(p=>({p,ds:deals.filter(d=>d.partnerId===p.id)}));
+  const loose=deals.filter(d=>!parts.some(p=>p.id===d.partnerId));
+  if(loose.length)groups.push({p:{id:'other',name:'Other investments'},ds:loose});
+  box.replaceChildren(...groups.map(({p,ds})=>{const ytd=ds.reduce((a,d)=>a+received(S.incomePayments.filter(x=>x.dealId===d.id&&x.month.startsWith(YEAR+''))),0);const inv=ds.reduce((a,d)=>a+(+d.invested||0),0);
+    return el('section',{class:'partner panel'},
+      el('div',{class:'partner-h'},el('div',{},el('h2',{text:p.name}),el('div',{class:'muted small',text:[inv?`${fmt(inv,0)} invested`:'',`${fmt(ytd,0)} received in ${YEAR}`,p.contacts||''].filter(Boolean).join(' · ')})),p.id!=='other'?folderBtn(p):null),
+      el('div',{id:'pf-'+p.id,hidden:true}),
+      p.id!=='other'&&(p.docs||[]).length||p.id!=='other'&&canWrite?el('div',{},el('div',{class:'small',style:'font-weight:600;margin-bottom:4px',text:'Shared documents'}),docList('partners/'+p.id,p.docs)):null,
+      el('div',{class:'cards'},...ds.map(dealCard)))}));
+}
+
+/* ---------- income tab ---------- */
+let editing=null;
+function renderIncome(){
+  const months=monthsOfYear();const deals=[...S.deals].sort((a,b)=>(a.order||0)-(b.order||0));
+  const t=$('#incomeGrid');
+  if(!deals.length){t.replaceChildren(el('tbody',{},el('tr',{},el('td',{class:'empty',text:'No deals yet.'}))));return}
+  const head=el('thead',{},el('tr',{},el('th',{class:'deal',text:'Deal'}),...months.map(ym=>el('th',{},el('button',{class:'link',style:`font:inherit;letter-spacing:inherit;text-transform:inherit;${ym===VM?'color:var(--fg);text-decoration:underline':''}`,disabled:ym>curYM,onclick:()=>{VM=ym;renderMonth();renderIncome();document.querySelector('.monthpick').scrollIntoView({behavior:'smooth',block:'start'})},text:MONTHS[+ym.slice(5)-1]}))),el('th',{class:'amt',text:YEAR+' total'})));
+  const body=el('tbody');
+  for(const d of deals){
+    const tot=received(S.incomePayments.filter(p=>p.dealId===d.id&&p.month.startsWith(YEAR+'')));
+    body.append(el('tr',{},el('td',{class:'deal'},el('div',{style:'font-weight:600',text:d.name}),el('div',{class:'muted small',text:`${d.stream} · ${fmt(d.expectedMonthly)}/mo`})),
+      ...months.map(ym=>{const c=cellState(d,ym);const cls={rec:'c-rec',pre:'c-pre',late:'c-late',due:'c-due',up:'c-up',na:'c-na'}[c.k];
+        return el('td',{},el('button',{class:'cell '+cls,disabled:!canWrite,'aria-label':`${d.name} ${d.stream}, ${monthName(ym)}: ${c.label}`,onclick:()=>openPay(d,ym)},
+          el('span',{class:'small',text:c.label}),c.p&&c.p.status!=='Skipped'?el('span',{class:'a',text:fmt(+c.p.amount,0)+(c.p.bankMatch?' ✓':'')}):null))}),
+      el('td',{class:'amt num',text:fmt(tot,0)})));
+  }
+  const totals=months.map(ym=>received(S.incomePayments.filter(p=>p.month===ym)));
+  body.append(el('tr',{},el('td',{class:'deal',style:'font-weight:600',text:'Total received'}),...totals.map(v=>el('td',{class:'num small',text:v?fmt(v,0):'—'})),el('td',{class:'amt num',style:'font-weight:600',text:fmt(totals.reduce((a,b)=>a+b,0),0)})));
+  t.replaceChildren(head,body);
+  renderPartners(deals);
+  // other income
+  const ot=$('#otherTable');ot.replaceChildren(el('thead',{},el('tr',{},...['Date','Client','What','Invoiced','Paid'].map(h=>el('th',{text:h})),el('th',{class:'amt',text:'Amount'}))),
+    el('tbody',{},...(S.otherIncome.length?[...S.otherIncome].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(o=>el('tr',{},el('td',{class:'num small',text:o.date}),el('td',{text:o.client}),el('td',{},o.what,o.notes?el('div',{class:'desc',text:o.notes}):null),
+      el('td',{},el('input',{type:'checkbox',checked:!!o.invoiced,disabled:!canWrite,'aria-label':'Invoiced',onchange:e=>saveDoc('otherIncome/'+o.id,{invoiced:e.target.checked},true)})),
+      el('td',{},el('input',{type:'checkbox',checked:!!o.paid,disabled:!canWrite,'aria-label':'Paid',onchange:e=>saveDoc('otherIncome/'+o.id,{paid:e.target.checked,paidOn:e.target.checked?new Date().toISOString().slice(0,10):''},true)})),
+      el('td',{class:'amt',text:fmt(+o.amount)}))):[el('tr',{},el('td',{colspan:6,class:'empty',text:'No other income logged.'}))])));
+  const tt=$('#transferTable');tt.replaceChildren(el('thead',{},el('tr',{},...['Date','From → to','Note'].map(h=>el('th',{text:h})),el('th',{class:'amt',text:'Amount'}))),
+    el('tbody',{},...(S.transfers.length?[...S.transfers].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(x=>el('tr',{},el('td',{class:'num small',text:x.date}),el('td',{},`${x.fromAcct} → ${x.toAcct}`),el('td',{class:'desc',text:[x.note,x.balanceAfter!=null?`Balance after: ${fmt(x.balanceAfter,0)}`:''].filter(Boolean).join(' · ')}),el('td',{class:'amt',text:fmt(+x.amount,0)}))):[el('tr',{},el('td',{colspan:4,class:'empty',text:'No transfers logged.'}))])));
+}
+function openPay(d,ym){
+  const c=cellState(d,ym);const p=c.p||{};const box=$('#payEditor');box.hidden=false;
+  const amt=el('input',{id:'payAmt',type:'number',step:'0.01',value:p.amount!=null?p.amount:d.expectedMonthly});
+  const dt=el('input',{id:'payDate',type:'date',value:p.date||(ym===curYM?today.toISOString().slice(0,10):'')});
+  const st=el('select',{id:'payStatus'},...['Received','Prepaid','Skipped'].map(s=>el('option',{value:s,selected:(p.status||'Received')===s,text:s})));
+  const note=el('input',{id:'payNote',value:p.note||'',placeholder:'Optional'});
+  box.replaceChildren(el('div',{class:'drawer'},
+    el('div',{class:'row'},el('h3',{text:`${d.name} · ${d.stream} · ${monthName(ym)}`}),el('span',{class:'spacer'}),el('span',{class:'pill '+({rec:'c-rec',pre:'c-pre',late:'c-late',due:'c-due'}[c.k]||'p-mute'),text:c.label})),
+    el('div',{class:'form'},el('label',{class:'f'},'Amount',amt),el('label',{class:'f'},'Date received',dt),el('label',{class:'f'},'Status',st),el('label',{class:'f wide'},'Note',note)),
+    el('div',{class:'row'},el('button',{class:'btn primary',onclick:async()=>{try{await db.doc('incomePayments/'+d.id+'_'+ym).set({dealId:d.id,month:ym,amount:+amt.value||0,date:dt.value,status:st.value,note:note.value,source:'Manual',updatedAt:new Date().toISOString()});box.hidden=true;toast('Saved')}catch(e){fail(e)}},text:'Save'}),
+      el('button',{class:'btn',onclick:()=>box.hidden=true,text:'Cancel'}),el('span',{class:'spacer'}),
+      c.p?el('button',{class:'btn danger',onclick:async()=>{try{await db.doc('incomePayments/'+d.id+'_'+ym).delete();box.hidden=true;toast('Cleared')}catch(e){fail(e)}},text:'Clear this month'}):null)));
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});amt.focus();
+}
+async function saveDoc(path,data,merge){try{merge?await db.doc(path).update(data):await db.doc(path).set(data);toast('Saved')}catch(e){fail(e)}}
+$('#addOther').addEventListener('click',()=>{const f=$('#otherForm');if(!f.hidden){f.hidden=true;return}f.hidden=false;
+  const i={date:el('input',{id:'oDate',type:'date',value:today.toISOString().slice(0,10)}),client:el('input',{id:'oClient'}),what:el('input',{id:'oWhat'}),amount:el('input',{id:'oAmt',type:'number',step:'0.01'})};
+  f.replaceChildren(el('div',{class:'drawer'},el('div',{class:'form'},el('label',{class:'f'},'Date',i.date),el('label',{class:'f'},'Client',i.client),el('label',{class:'f'},'What it was',i.what),el('label',{class:'f'},'Amount',i.amount)),
+    el('div',{class:'row'},el('button',{class:'btn primary',onclick:async()=>{if(!i.client.value||!i.amount.value){toast('Add a client and an amount.');return}await saveDoc('otherIncome/'+uid('o'),{date:i.date.value,client:i.client.value,what:i.what.value,amount:+i.amount.value,invoiced:false,paid:false,paidOn:'',notes:''});f.hidden=true},text:'Save'}),el('button',{class:'btn',onclick:()=>f.hidden=true,text:'Cancel'}))))});
+$('#addTransfer').addEventListener('click',()=>{const f=$('#transferForm');if(!f.hidden){f.hidden=true;return}f.hidden=false;
+  const i={date:el('input',{id:'tDate',type:'date',value:today.toISOString().slice(0,10)}),to:el('input',{id:'tTo',value:"Luca's personal Revolut"}),amount:el('input',{id:'tAmt',type:'number',step:'0.01'}),note:el('input',{id:'tNote'})};
+  f.replaceChildren(el('div',{class:'drawer'},el('div',{class:'form'},el('label',{class:'f'},'Date',i.date),el('label',{class:'f'},'To',i.to),el('label',{class:'f'},'Amount',i.amount),el('label',{class:'f'},'Note',i.note)),
+    el('div',{class:'row'},el('button',{class:'btn primary',onclick:async()=>{if(!i.amount.value){toast('Add an amount.');return}await saveDoc('transfers/'+uid('t'),{date:i.date.value,fromAcct:'PPLLC Revolut Business',toAcct:i.to.value,amount:+i.amount.value,note:i.note.value});f.hidden=true},text:'Save'}),el('button',{class:'btn',onclick:()=>f.hidden=true,text:'Cancel'}))))});
+
+/* ---------- expenses tab ---------- */
+const F={month:'',cat:'',acct:'',text:''};
+try{const s=JSON.parse(localStorage.getItem('pl-filters')||'null');if(s)Object.assign(F,s)}catch(e){}
+for(const k of ['Month','Cat','Acct','Text'])$('#f'+k).addEventListener(k==='Text'?'input':'change',e=>{F[k.toLowerCase()]=e.target.value;try{localStorage.setItem('pl-filters',JSON.stringify(F))}catch(_){}renderExpenses()});
+function fillSelect(sel,label,vals,cur){sel.replaceChildren(el('option',{value:'',text:label}),...vals.map(v=>el('option',{value:v.v,selected:v.v===cur,text:v.t})))}
+function renderExpenses(){
+  const months=[...new Set(S.expenses.map(e=>ymOf(e.date)))].filter(Boolean).sort().reverse();
+  fillSelect($('#fMonth'),'All months',months.map(m=>({v:m,t:monthName(m)})),F.month);
+  const cats=[...new Set([...CATS,...S.expenses.map(e=>e.category)])].filter(Boolean);
+  fillSelect($('#fCat'),'All categories',cats.map(c=>({v:c,t:c})),F.cat);
+  const accts=[...new Set(S.expenses.map(e=>e.account))].filter(Boolean).sort((a,b)=>isMain(b)-isMain(a)||a.localeCompare(b));
+  fillSelect($('#fAcct'),'Any card or account',accts.map(a=>({v:a,t:acctLabel(a)})),F.acct);
+  $('#fText').value=F.text;
+  const q=F.text.trim().toLowerCase();
+  const rows=S.expenses.filter(e=>(!F.month||ymOf(e.date)===F.month)&&(!F.cat||e.category===F.cat)&&(!F.acct||e.account===F.acct)&&(!q||[e.vendor,e.description,e.note,e.category].join(' ').toLowerCase().includes(q)))
+    .sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.amount-a.amount));
+  const cnt=rows.filter(counted);const tot=cnt.reduce((s,e)=>s+e.amount,0);
+  $('#expTotal').textContent=fmt(tot);
+  const rv=rows.length-cnt.length;
+  $('#expCount').textContent=`${cnt.length} payment${cnt.length===1?'':'s'}${F.month?' in '+monthName(F.month):''}${rv?` · ${rv} to review, not counted`:''}`;
+  const group=(key)=>{const m={};for(const e of cnt)m[e[key]||'Not set']=(m[e[key]||'Not set']||0)+e.amount;return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+  const bars=(arr,box,mainFlag)=>{const mx=Math.max(1,...arr.map(x=>x[1]));box.replaceChildren(...(arr.length?arr.map(([k,v])=>el('div',{class:'cat'},el('span',{text:mainFlag?acctLabel(k):k,style:mainFlag&&isMain(k)?'font-weight:600':''}),el('div',{class:'bar'},el('i',{style:`width:${v/mx*100}%;${mainFlag&&isMain(k)?'background:var(--accent)':''}`})),el('span',{class:'num',style:'text-align:right',text:fmt(v,0)}))):[el('div',{class:'muted small',text:'Nothing in this filter.'})]))};
+  bars(group('category'),$('#cats'));bars(group('account'),$('#accts'),true);
+  const t=$('#expTable');
+  t.replaceChildren(el('thead',{},el('tr',{},...['Date','Vendor','Category','Paid with','Docs',''].map(h=>el('th',{text:h})),el('th',{class:'amt',text:'Amount'}))),
+    el('tbody',{},...(rows.length?rows.map(e=>el('tr',{class:'click'+(e.status==='Needs review'?' review':''),tabindex:'0',onclick:ev=>{if(ev.target.closest('a'))return;openExpense(e)},onkeydown:ev=>{if(ev.key==='Enter')openExpense(e)}},
+      el('td',{class:'num small',style:'white-space:nowrap',text:e.date}),
+      el('td',{},el('div',{style:'font-weight:500',text:e.vendor}),e.description?el('div',{class:'desc',text:e.description}):null,e.note?el('div',{class:'desc',style:'color:var(--warn)',text:e.note}):null),
+      el('td',{class:'small',text:e.category}),
+      el('td',{class:'small'},el('span',{text:acctLabel(e.account),style:isMain(e.account)?'color:var(--accent);font-weight:600':''}),e.paidBy==='Luca'?el('div',{class:'muted',text:'Paid by Luca'}):null),
+      el('td',{class:'small',style:'white-space:nowrap'},e.invoiceUrl?el('a',{href:e.invoiceUrl,target:'_blank',rel:'noopener',text:'Invoice'}):null,e.invoiceUrl&&e.receiptUrl?' · ':null,e.receiptUrl?el('a',{href:e.receiptUrl,target:'_blank',rel:'noopener',text:'Receipt'}):null),
+      el('td',{},e.status==='Needs review'?el('span',{class:'pill p-warn',text:'Review'}):e.status==='Pending'?el('span',{class:'pill p-mute',text:'Pending'}):e.bankMatch?el('span',{class:'pill p-ok',title:`On the bank statement: ${e.bankMatch.description} (${e.bankMatch.postedOn})`,text:'✓ Bank'}):null),
+      el('td',{class:'amt',text:fmt(e.amount)}))):[el('tr',{},el('td',{colspan:7,class:'empty',text:S.expenses.length?'No expenses match these filters.':'No expenses yet. Add one, or import a Revolut statement.'}))])));
+}
+function openExpense(e){
+  e=e||{};if(!canWrite)return;const box=$('#expEditor');box.hidden=false;
+  const i={date:el('input',{id:'eDate',type:'date',value:e.date||today.toISOString().slice(0,10)}),vendor:el('input',{id:'eVendor',value:e.vendor||'',list:'vendorList'}),
+    amount:el('input',{id:'eAmt',type:'number',step:'0.01',value:e.amount!=null?e.amount:''}),
+    category:el('select',{id:'eCat'},...[...new Set([...CATS,e.category].filter(Boolean))].map(c=>el('option',{value:c,selected:c===(e.category||'Repairs & maintenance'),text:c}))),
+    account:el('select',{id:'eAcct'},...[...new Set([...ACCTS,e.account].filter(Boolean))].map(a=>el('option',{value:a,selected:a===(e.account||'PPLLC Revolut card 0868'),text:acctLabel(a)}))),
+    paidBy:el('select',{id:'ePaidBy'},...['Carolina','Luca'].map(a=>el('option',{value:a,selected:a===(e.paidBy||'Carolina'),text:a}))),
+    status:el('select',{id:'eStatus'},...['Paid','Pending','Needs review'].map(a=>el('option',{value:a,selected:a===(e.status||'Paid'),text:a}))),
+    description:el('input',{id:'eDesc',value:e.description||''}),invoiceUrl:el('input',{id:'eInv',type:'url',value:e.invoiceUrl||'',placeholder:'Link to invoice (Drive, email…)'}),
+    receiptUrl:el('input',{id:'eRec',type:'url',value:e.receiptUrl||'',placeholder:'Link to receipt'}),note:el('input',{id:'eNote',value:e.note||''})};
+  const dl=el('datalist',{id:'vendorList'},...[...new Set(S.expenses.map(x=>x.vendor))].sort().map(v=>el('option',{value:v})));
+  i.vendor.addEventListener('change',()=>{const last=S.expenses.filter(x=>x.vendor===i.vendor.value).sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];if(last&&!e.id){i.category.value=last.category}});
+  let confirmDel=false;
+  const delBtn=e.id?el('button',{class:'btn danger',disabled:!canWrite,onclick:async()=>{if(!confirmDel){confirmDel=true;delBtn.textContent='Tap again to delete';return}try{await db.doc('expenses/'+e.id).delete();box.hidden=true;toast('Deleted')}catch(err){fail(err)}},text:'Delete'}):null;
+  box.replaceChildren(el('div',{class:'drawer'},dl,el('div',{class:'row'},el('h3',{text:e.id?'Edit expense':'Add expense'}),el('span',{class:'spacer'}),e.source?el('span',{class:'muted small',text:'From: '+e.source}):null),
+    el('div',{class:'form'},el('label',{class:'f'},'Date',i.date),el('label',{class:'f'},'Vendor',i.vendor),el('label',{class:'f'},'Amount',i.amount),el('label',{class:'f'},'Category',i.category),
+      el('label',{class:'f'},'Paid with',i.account),el('label',{class:'f'},'Paid by',i.paidBy),el('label',{class:'f'},'Status',i.status),
+      el('label',{class:'f wide'},'What it was for',i.description),el('label',{class:'f'},'Invoice link',i.invoiceUrl),el('label',{class:'f'},'Receipt link',i.receiptUrl),el('label',{class:'f wide'},'Note',i.note)),
+    el('div',{class:'row'},el('button',{class:'btn primary',disabled:!canWrite,onclick:async()=>{
+        if(!i.vendor.value||!i.amount.value){toast('Add a vendor and an amount.');return}
+        const data={date:i.date.value,vendor:i.vendor.value.trim(),amount:Math.round(+i.amount.value*100)/100,category:i.category.value,account:i.account.value,paidBy:i.paidBy.value,status:i.status.value,description:i.description.value,invoiceUrl:i.invoiceUrl.value,receiptUrl:i.receiptUrl.value,note:i.note.value,updatedAt:new Date().toISOString()};
+        try{if(e.id)await db.doc('expenses/'+e.id).update(data);else await db.doc('expenses/'+uid('m')).set({...data,source:'Added by hand',createdAt:new Date().toISOString()});box.hidden=true;toast(e.id?'Saved':'Expense added')}catch(err){fail(err)}},text:e.id?'Save':'Add expense'}),
+      el('button',{class:'btn',onclick:()=>box.hidden=true,text:'Cancel'}),el('span',{class:'spacer'}),delBtn)));
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});i.vendor.focus();
+}
+$('#addExpense').addEventListener('click',()=>openExpense(null));
+
+/* ---------- bills & vendors ---------- */
+function copyBtn(v){return el('button',{class:'link',onclick:async()=>{try{await navigator.clipboard.writeText(v);toast('Copied')}catch(e){toast('Select the text to copy it.')}},text:'Copy'})}
+function renderBills(){
+  const bills=[...S.bills].sort((a,b)=>(a.order||0)-(b.order||0));
+  const last=v=>S.expenses.filter(e=>counted(e)&&e.vendor===v).sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];
+  $('#billsTable').replaceChildren(el('thead',{},el('tr',{},...['Bill','How often','Usual amount','Paid with','Last paid','Notes'].map(h=>el('th',{text:h})))),
+    el('tbody',{},...bills.map(b=>{const l=last(b.vendor);return el('tr',{},
+      el('td',{},el('div',{style:'font-weight:600',text:b.vendor}),el('div',{class:'muted small',text:b.service}),b.accountNumber?el('div',{class:'small mono muted',text:'Acct '+b.accountNumber}):null),
+      el('td',{class:'small'},b.frequency,b.autopay?el('div',{},el('span',{class:'pill p-ok',text:'Autopay'})):null),
+      el('td',{class:'num small',text:b.typical}),
+      el('td',{class:'small'},el('span',{text:acctLabel(b.account),style:isMain(b.account)?'color:var(--accent);font-weight:600':''}),b.account&&!isMain(b.account)?el('div',{},el('span',{class:'pill p-warn',text:'Move to Pinecrest Prime'})):null),
+      el('td',{class:'small num',text:l?`${l.date} · ${fmt(l.amount)}`:'—'}),
+      el('td',{class:'desc'},b.dueHint?el('div',{text:b.dueHint}):null,b.notes?el('div',{text:b.notes}):null))})));
+  $('#vendorCards').replaceChildren(...S.vendors.slice().sort((a,b)=>a.service.localeCompare(b.service)).map(v=>el('div',{class:'card'},
+    el('span',{class:'muted small',style:'text-transform:uppercase;letter-spacing:.06em;font-weight:600',text:v.service}),el('h3',{text:v.name}),
+    v.phone?el('div',{class:'row small'},el('span',{class:'mono',text:v.phone}),copyBtn(v.phone)):null,
+    v.email?el('div',{class:'row small'},el('span',{style:'overflow-wrap:anywhere',text:v.email}),copyBtn(v.email)):null,
+    v.notes?el('div',{class:'muted small',text:v.notes}):null)));
+}
+$('#addVendor').addEventListener('click',()=>{const f=$('#vendorForm');if(!f.hidden){f.hidden=true;return}f.hidden=false;
+  const i={service:el('input',{id:'vSvc',placeholder:'e.g. Plumber'}),name:el('input',{id:'vName'}),phone:el('input',{id:'vPhone'}),email:el('input',{id:'vEmail',type:'email'}),notes:el('input',{id:'vNotes'})};
+  f.replaceChildren(el('div',{class:'drawer',style:'margin-bottom:12px'},el('div',{class:'form'},el('label',{class:'f'},'Service',i.service),el('label',{class:'f'},'Name / company',i.name),el('label',{class:'f'},'Phone',i.phone),el('label',{class:'f'},'Email',i.email),el('label',{class:'f wide'},'Notes',i.notes)),
+    el('div',{class:'row'},el('button',{class:'btn primary',onclick:async()=>{if(!i.name.value){toast('Add a name.');return}await saveDoc('vendors/'+uid('v'),{service:i.service.value||'Other',name:i.name.value,phone:i.phone.value,email:i.email.value,notes:i.notes.value});f.hidden=true},text:'Save'}),el('button',{class:'btn',onclick:()=>f.hidden=true,text:'Cancel'}))))});
+
+/* ---------- Revolut import ---------- */
+function parseCSV(text){const rows=[];let row=[],f='',q=false;for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}else if(c==='"')q=true;else if(c===','){row.push(f);f=''}else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(f);f='';if(row.some(x=>x!==''))rows.push(row);row=[]}else f+=c}if(f!==''||row.length){row.push(f);if(row.some(x=>x!==''))rows.push(row)}return rows}
+function pickCol(h,tests){for(const t of tests){const i=h.findIndex(x=>t.test(x));if(i>=0)return i}return -1}
+function normDate(s){s=(s||'').trim();let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return m[0];m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);if(m){const y=m[3].length===2?'20'+m[3]:m[3];return `${y}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`}const d=new Date(s);return isNaN(d)?'':d.toISOString().slice(0,10)}
+const days=(a,b)=>Math.abs((new Date(a)-new Date(b))/864e5);
+let IMP=[];
+function handleFile(file){if(!file)return;const r=new FileReader();r.onload=()=>analyse(String(r.result),file.name);r.onerror=()=>toast('Couldn’t read that file.');r.readAsText(file)}
+function analyse(text,name){
+  const rows=parseCSV(text.replace(/^﻿/,''));const box=$('#importResult');
+  if(rows.length<2){box.replaceChildren(el('div',{class:'panel',text:'That file has no transactions in it. Export the statement as CSV from Revolut Business and try again.'}));return}
+  const h=rows[0].map(x=>x.trim().toLowerCase());
+  const c={date:pickCol(h,[/date completed/,/completed date/,/^date/,/date/]),amt:pickCol(h,[/^total amount$/,/^amount$/,/amount/]),desc:pickCol(h,[/^description$/,/counterparty/,/merchant/,/description/]),ref:pickCol(h,[/^reference$/,/reference/]),id:pickCol(h,[/^id$/,/transaction id/]),state:pickCol(h,[/^state$/,/status/]),type:pickCol(h,[/^type$/]),card:pickCol(h,[/card number/,/^card/]),payer:pickCol(h,[/^payer$/])};
+  if(c.date<0||c.amt<0){box.replaceChildren(el('div',{class:'panel',text:'This doesn’t look like a Revolut statement: no date or amount column was found. Export the statement as CSV and try again.'}));return}
+  IMP=[];
+  for(const r of rows.slice(1)){
+    const st=c.state>=0?(r[c.state]||'').toUpperCase():'COMPLETED';if(/DECLINED|FAILED|REVERTED|CANCEL/.test(st))continue;
+    const amount=parseFloat(String(r[c.amt]||'').replace(/[^0-9.\-]/g,''));if(!amount||isNaN(amount))continue;
+    const date=normDate(r[c.date]);const desc=[c.desc>=0?r[c.desc]:'',c.ref>=0?r[c.ref]:''].filter(Boolean).join(' · ').trim();
+    const type=c.type>=0?(r[c.type]||'').toUpperCase():'';const card=c.card>=0?r[c.card]||'':'';const rid=c.id>=0?r[c.id]:'';
+    const row={date,amount:Math.abs(amount),dir:amount<0?'out':'in',desc,type,rid,pick:true};
+    if(row.dir==='out'){
+      const low=desc.toLowerCase();const rule=S.rules.find(x=>low.includes(x.match.toLowerCase()));
+      row.vendor=rule?rule.vendor:desc.split(' · ')[0].slice(0,60);row.category=rule?rule.category:'Repairs & maintenance';
+      row.account=/0868/.test(card)||type==='CARD_PAYMENT'?'PPLLC Revolut card 0868':'PPLLC Revolut – transfer';
+      const dup=S.expenses.find(e=>(rid&&e.revolutId===rid)||(Math.abs(e.amount-row.amount)<0.01&&e.date&&date&&days(e.date,date)<=5));
+      if(/luca|schnetzler/i.test(desc)&&row.amount>=1000){row.kind='transfer';row.pick=false}
+      else if(dup){row.kind='dup';row.match=dup;row.pick=false}else row.kind='new';
+      if(type==='FEE'){row.vendor='Revolut';row.category='LLC & legal'}
+    }else{
+      const low=desc.toLowerCase();
+      let deal=S.deals.find(d=>[d.name,d.counterparty,d.stream].some(x=>x&&low.includes(String(x).toLowerCase().split(/[ –-]/)[0].trim())&&String(x).length>3))||S.deals.find(d=>Math.abs(d.expectedMonthly-row.amount)/d.expectedMonthly<0.02);
+      row.dealId=deal?deal.id:'';row.month=ymOf(date);
+      const ex=deal&&S.incomePayments.find(p=>p.dealId===deal.id&&p.month===row.month);
+      row.kind=ex?'indup':'income';row.pick=!ex&&!!deal;
+    }
+    IMP.push(row);
+  }
+  renderImport(name);
+}
+function renderImport(name){
+  const box=$('#importResult');
+  const n={new:0,dup:0,income:0,indup:0,transfer:0};IMP.forEach(r=>n[r.kind]++);
+  const sel=IMP.filter(r=>r.pick);
+  const badge=r=>({new:['p-info','New expense'],dup:['p-mute','Already logged'],income:['p-ok','Income'],indup:['p-mute','Already recorded'],transfer:['p-mute','Transfer to Luca']}[r.kind]);
+  const dealSel=r=>el('select',{'aria-label':'Deal',onchange:e=>{r.dealId=e.target.value;r.pick=!!r.dealId;renderImport(name)}},el('option',{value:'',text:'Not a deal payment'}),...S.deals.map(d=>el('option',{value:d.id,selected:d.id===r.dealId,text:`${d.name} · ${d.stream}`})));
+  box.replaceChildren(el('div',{class:'panel'},
+    el('div',{class:'panel-h'},el('h2',{text:name}),el('span',{class:'muted small',text:`${n.new} new expenses · ${n.income} income · ${n.dup+n.indup} already logged · ${n.transfer} transfers`})),
+    el('div',{class:'scroll'},el('table',{},el('thead',{},el('tr',{},el('th',{text:'Add'}),...['Date','From the statement','Goes to',''].map(h=>el('th',{text:h})),el('th',{class:'amt',text:'Amount'}))),
+      el('tbody',{},...IMP.map(r=>el('tr',{},
+        el('td',{},el('input',{type:'checkbox',checked:r.pick,disabled:r.kind==='dup'||r.kind==='indup','aria-label':'Add this row',onchange:e=>{r.pick=e.target.checked;renderImport(name)}})),
+        el('td',{class:'num small',text:r.date}),el('td',{class:'desc',text:r.desc||r.type}),
+        el('td',{class:'small'},r.dir==='out'?(r.kind==='dup'?`${r.match.vendor} (${r.match.date})`:`${r.vendor} · ${r.category}`):r.kind==='indup'?'Already in the income grid':dealSel(r)),
+        el('td',{},el('span',{class:'pill '+badge(r)[0],text:badge(r)[1]})),
+        el('td',{class:'amt',style:r.dir==='in'?'color:var(--ok)':'',text:(r.dir==='in'?'+':'')+fmt(r.amount)})))))),
+    el('div',{class:'row',style:'margin-top:12px'},el('button',{class:'btn primary',disabled:!canWrite||!sel.length,onclick:commitImport,text:`Add ${sel.length} selected`}),el('span',{class:'muted small',text:'New expenses come in as “Paid”. Check vendor names afterwards on the House expenses tab.'}))));
+}
+async function commitImport(){
+  const sel=IMP.filter(r=>r.pick);let ok=0;
+  for(const r of sel){try{
+    if(r.dir==='out')await db.doc('expenses/'+uid('r')).set({date:r.date,vendor:r.vendor,amount:r.amount,category:r.category,account:r.account,paidBy:'Carolina',status:'Paid',description:r.desc,invoiceUrl:'',receiptUrl:'',note:'',source:'Revolut statement',revolutId:r.rid||'',createdAt:new Date().toISOString()});
+    else if(r.dealId)await db.doc('incomePayments/'+r.dealId+'_'+r.month).set({dealId:r.dealId,month:r.month,amount:r.amount,date:r.date,status:'Received',note:'',source:'Revolut statement'});
+    ok++}catch(e){fail(e);break}}
+  try{await db.doc('meta/settings').update({lastImport:new Date().toISOString()})}catch(e){}
+  toast(`Added ${ok} item${ok===1?'':'s'}`);IMP=[];$('#importResult').replaceChildren();
+}
+const drop=$('#drop');
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});
+drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');handleFile(e.dataTransfer.files[0])});
+$('#fileIn').addEventListener('change',e=>handleFile(e.target.files[0]));
+
+/* ---------- render + data ---------- */
+function syncLine(){const m=S.meta||{};const parts=[];if(m.lastGmailCheck)parts.push('Email check: '+new Date(m.lastGmailCheck).toLocaleDateString('en-US',{month:'short',day:'numeric'}));if(m.lastImport)parts.push('Last Revolut import: '+new Date(m.lastImport).toLocaleDateString('en-US',{month:'short',day:'numeric'}));if(window.__publishedAt)parts.unshift('Updated '+new Date(window.__publishedAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));$('#syncbox').textContent=parts.join(' · ')||(loaded.size?'Up to date':'Connecting…');$('#lastImport').textContent=m.lastImport?'Last import '+new Date(m.lastImport).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):''}
+let raf=0;function renderAll(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{renderMonth();renderOverview();renderIncome();renderExpenses();renderBills();syncLine();$('#addExpense').disabled=!canWrite})}
+window.addEventListener('resize',()=>{clearTimeout(renderAll._r);renderAll._r=setTimeout(drawChart,150)});
+async function start(){
+  if(!window.claude||!window.claude.use){return}
+  db=await window.claude.use('db');
+  if(!db){return}
+  const user=await window.claude.use('user');
+  if(user){try{const c=await user.can('data.write');if(c===false)canWrite=false}catch(e){}}
+  for(const col of ['partners','expenses','deals','incomePayments','otherIncome','transfers','bills','vendors','rules','alerts']){
+    db.collection(col).onSnapshot(s=>{S[col]=s.docs.map(d=>({id:d.id,...d.data()}));if(col==='expenses')S.expenses.forEach(e=>{e.amount=+e.amount||0;if(e.account==='Revolut card 0505'||e.account==="Luca's personal Revolut 2277")e.account="Luca's personal Revolut (card 0505)"});if(col==='bills')S.bills.forEach(b=>{if(b.account==='Revolut card 0505')b.account="Luca's personal Revolut (card 0505)"});loaded.add(col);renderAll()},e=>{console.error(col,e);$('#syncbox').textContent='Lost connection. Reload the page.'});
+  }
+  db.doc('meta/settings').onSnapshot(s=>{S.meta=s.exists?s.data():{};renderAll()},()=>{});
+}
+renderAll();start();
+})();
+</script>
+
+</body>
+</html>
