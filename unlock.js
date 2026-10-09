@@ -42,5 +42,14 @@
   });
   document.getElementById('signout').addEventListener('click',()=>{forget();location.reload()});
   (async()=>{const s=saved();if(s){try{await unlockWith(b64(s));return}catch(e){forget()}}gate.hidden=false;document.getElementById('loginPw').focus()})();
+  window.__openFile=async f=>{
+    const w=window.open('','_blank');
+    try{const r=await fetch(f.path+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('missing');
+      const k=await crypto.subtle.importKey('raw',b64(f.key),'AES-GCM',false,['decrypt']);
+      const raw=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(f.iv)},k,await r.arrayBuffer());
+      const url=URL.createObjectURL(new Blob([raw],{type:f.type||'application/pdf'}));
+      if(w)w.location.href=url;else{const a=document.createElement('a');a.href=url;a.download=f.name||'document';document.body.append(a);a.click();a.remove()}
+    }catch(e){console.error(e);if(w)w.close();alert('That document could not be opened. Try again in a minute.')}
+  };
   window.claude={use:async n=>{if(n==='db')return dbReady;if(n==='user')return{can:async()=>false,isOwner:()=>false,canEdit:()=>false};return null}};
 })();

@@ -488,9 +488,25 @@ function renderMonth(){
 }
 
 /* ---------- partners & documents ---------- */
+const SITE_URL='https://carolinam19.github.io/pinecrest-prime/';
+function docLink(d){
+  if(d.file){
+    if(window.__openFile)return el('a',{href:'#',onclick:ev=>{ev.preventDefault();window.__openFile(d.file)},text:d.title||d.file.name});
+    return el('span',{},el('a',{href:SITE_URL,target:'_blank',rel:'noopener',text:d.title||d.file.name}),el('span',{class:'muted',text:' · PDF, opens on the website'}));
+  }
+  return el('a',{href:d.url,target:'_blank',rel:'noopener',text:d.title||d.url});
+}
+function warrantyList(ws){
+  if(!Array.isArray(ws)||!ws.length)return null;
+  const today=new Date().toISOString().slice(0,10);
+  return el('div',{},el('div',{class:'small',style:'font-weight:600;margin:6px 0 4px',text:'Warranties'}),
+    el('ul',{class:'docs'},...ws.map(w=>{const active=!w.end||w.end>=today;const pending=w.start&&w.start>today;
+      return el('li',{style:'align-items:flex-start'},el('span',{class:'pill '+(pending?'p-info':active?'p-ok':'p-mute'),text:pending?'Starts '+fmtDay(w.start):active?'Until '+new Date(w.end+'T12:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'}):'Expired'}),
+        el('span',{},el('b',{text:w.coverage}),' · '+w.item))})));
+}
 function docList(path,docs){
   docs=Array.isArray(docs)?docs:[];
-  const ul=el('ul',{class:'docs'},...docs.map((d,i)=>el('li',{},el('span',{'aria-hidden':'true',text:'📄'}),el('a',{href:d.url,target:'_blank',rel:'noopener',text:d.title||d.url}),
+  const ul=el('ul',{class:'docs'},...docs.map((d,i)=>el('li',{},el('span',{'aria-hidden':'true',text:'📄'}),docLink(d),
     canWrite?el('button',{class:'link',style:'color:var(--muted)','aria-label':'Remove '+(d.title||'link'),onclick:async()=>{const nd=docs.filter((_,j)=>j!==i);await saveDoc(path,{docs:nd},true)},text:'×'}):null)));
   if(!docs.length)ul.append(el('li',{class:'muted',text:'No documents linked yet.'}));
   const wrap=el('div',{style:'display:grid;gap:6px'},ul);
@@ -667,7 +683,9 @@ function renderBills(){
     el('span',{class:'muted small',style:'text-transform:uppercase;letter-spacing:.06em;font-weight:600',text:v.service}),el('h3',{text:v.name}),
     v.phone?el('div',{class:'row small'},el('span',{class:'mono',text:v.phone}),copyBtn(v.phone)):null,
     v.email?el('div',{class:'row small'},el('span',{style:'overflow-wrap:anywhere',text:v.email}),copyBtn(v.email)):null,
-    v.notes?el('div',{class:'muted small',text:v.notes}):null)));
+    v.notes?el('div',{class:'muted small',text:v.notes}):null,
+    warrantyList(v.warranties),
+    (Array.isArray(v.docs)&&v.docs.length)||canWrite?el('div',{},el('div',{class:'small',style:'font-weight:600;margin:6px 0 4px',text:'Documents'}),docList('vendors/'+v.id,v.docs)):null)));
 }
 $('#addVendor').addEventListener('click',()=>{const f=$('#vendorForm');if(!f.hidden){f.hidden=true;return}f.hidden=false;
   const i={service:el('input',{id:'vSvc',placeholder:'e.g. Plumber'}),name:el('input',{id:'vName'}),phone:el('input',{id:'vPhone'}),email:el('input',{id:'vEmail',type:'email'}),notes:el('input',{id:'vNotes'})};
