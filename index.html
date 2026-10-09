@@ -150,6 +150,18 @@ ol.steps{margin:0;padding-left:20px;display:grid;gap:4px}
 .docs li a{overflow-wrap:anywhere}
 .dealstat{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;font-size:13px}
 .dealstat b{font-family:var(--f-display);font-size:20px;font-weight:600}
+.vlist{display:grid}
+.vrow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:6px 18px;padding:12px 0;border-bottom:1px solid var(--line);align-items:start}
+.vrow:last-child{border-bottom:0}
+@media (max-width:760px){.vrow{grid-template-columns:1fr}}
+.vsvc{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;color:var(--muted)}
+.vname{font-weight:600}
+.vnotes{margin-top:2px}
+.vcontact{display:grid;gap:2px}
+.vdet summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--accent);list-style-position:inside}
+.vrow:not(.has) .vdet summary{color:var(--muted);font-weight:500}
+.vdocs:has(details[open]){grid-column:1/-1}
+.vdet-body{margin-top:8px;padding:12px;border-radius:8px;background:var(--sunk);display:grid;gap:6px}
 </style><style>
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0}
@@ -303,7 +315,7 @@ button.cell:disabled{opacity:1;cursor:default}
     <div class="panel">
       <div class="panel-h"><h2>Service providers</h2><button class="btn sm" id="addVendor">Add</button></div>
       <div id="vendorForm" hidden></div>
-      <div class="cards" id="vendorCards"></div>
+      <div class="vlist" id="vendorCards"></div>
       <p class="muted small" style="margin:14px 0 0">Logins, passwords and the gate and alarm codes are not stored on this page. Keep them in a shared password manager.</p>
     </div>
   </section>
@@ -668,6 +680,7 @@ $('#addExpense').addEventListener('click',()=>openExpense(null));
 
 /* ---------- bills & vendors ---------- */
 function copyBtn(v){return el('button',{class:'link',onclick:async()=>{try{await navigator.clipboard.writeText(v);toast('Copied')}catch(e){toast('Select the text to copy it.')}},text:'Copy'})}
+const VOPEN=new Set();
 function renderBills(){
   const bills=[...S.bills].sort((a,b)=>(a.order||0)-(b.order||0));
   const last=v=>S.expenses.filter(e=>counted(e)&&e.vendor===v).sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];
@@ -679,13 +692,22 @@ function renderBills(){
       el('td',{class:'small'},el('span',{text:acctLabel(b.account),style:isMain(b.account)?'color:var(--accent);font-weight:600':''}),b.account&&!isMain(b.account)?el('div',{},el('span',{class:'pill p-warn',text:'Move to Pinecrest Prime'})):null),
       el('td',{class:'small num',text:l?`${l.date} · ${fmt(l.amount)}`:'—'}),
       el('td',{class:'desc'},b.dueHint?el('div',{text:b.dueHint}):null,b.notes?el('div',{text:b.notes}):null))})));
-  $('#vendorCards').replaceChildren(...S.vendors.slice().sort((a,b)=>a.service.localeCompare(b.service)).map(v=>el('div',{class:'card'},
-    el('span',{class:'muted small',style:'text-transform:uppercase;letter-spacing:.06em;font-weight:600',text:v.service}),el('h3',{text:v.name}),
-    v.phone?el('div',{class:'row small'},el('span',{class:'mono',text:v.phone}),copyBtn(v.phone)):null,
-    v.email?el('div',{class:'row small'},el('span',{style:'overflow-wrap:anywhere',text:v.email}),copyBtn(v.email)):null,
-    v.notes?el('div',{class:'muted small',text:v.notes}):null,
-    warrantyList(v.warranties),
-    (Array.isArray(v.docs)&&v.docs.length)||canWrite?el('div',{},el('div',{class:'small',style:'font-weight:600;margin:6px 0 4px',text:'Documents'}),docList('vendors/'+v.id,v.docs)):null)));
+  const vs=S.vendors.slice().sort((a,b)=>{const ea=(a.docs||[]).length+(a.warranties||[]).length?0:1,eb=(b.docs||[]).length+(b.warranties||[]).length?0:1;return ea-eb||a.service.localeCompare(b.service)});
+  $('#vendorCards').replaceChildren(...vs.map(v=>{
+    const nd=(v.docs||[]).length,nw=(v.warranties||[]).length,has=nd+nw>0;
+    const det=has||canWrite?el('details',{class:'vdet',open:VOPEN.has(v.id),ontoggle:e=>{e.target.open?VOPEN.add(v.id):VOPEN.delete(v.id)}},
+      el('summary',{text:has?[nw?`${nw} warrant${nw>1?'ies':'y'}`:'',nd?`${nd} document${nd>1?'s':''}`:''].filter(Boolean).join(' · '):'+ Add document'}),
+      el('div',{class:'vdet-body'},warrantyList(v.warranties),(nd||canWrite)?el('div',{},nw?el('div',{class:'small',style:'font-weight:600;margin:6px 0 4px',text:'Documents'}):null,docList('vendors/'+v.id,v.docs)):null)):null;
+    return el('div',{class:'vrow'+(has?' has':'')},
+      el('div',{class:'vmain'},
+        el('div',{class:'vsvc',text:v.service}),
+        el('div',{class:'vname',text:v.name}),
+        v.notes?el('div',{class:'muted small vnotes',text:v.notes}):null),
+      el('div',{class:'vcontact small'},
+        v.phone?el('div',{class:'row'},el('span',{class:'mono',text:v.phone}),copyBtn(v.phone)):null,
+        v.email?el('div',{class:'row'},el('span',{style:'overflow-wrap:anywhere',text:v.email}),copyBtn(v.email)):null),
+      det?el('div',{class:'vdocs'},det):el('div'));
+  }));
 }
 $('#addVendor').addEventListener('click',()=>{const f=$('#vendorForm');if(!f.hidden){f.hidden=true;return}f.hidden=false;
   const i={service:el('input',{id:'vSvc',placeholder:'e.g. Plumber'}),name:el('input',{id:'vName'}),phone:el('input',{id:'vPhone'}),email:el('input',{id:'vEmail',type:'email'}),notes:el('input',{id:'vNotes'})};
