@@ -582,9 +582,9 @@ function editFolder(p){const box=$('#pf-'+p.id);box.hidden=false;const u=el('inp
   box.replaceChildren(el('div',{class:'row'},u,el('button',{class:'btn sm primary',onclick:async()=>{if(u.value&&!/^https?:\/\//.test(u.value.trim())){toast('Paste a full link starting with https://');return}await saveDoc('partners/'+p.id,{folder:u.value.trim()},true);box.hidden=true},text:'Save'}),el('button',{class:'btn sm',onclick:()=>box.hidden=true,text:'Cancel'})));u.focus()}
 function dealCard(d){
   const c=cellState(d,curYM);const ytd=received(S.incomePayments.filter(p=>p.dealId===d.id&&p.month.startsWith(YEAR+'')));
-  const stat={rec:['c-rec',`${monthName(curYM)}: received ${fmt(+(c.p&&c.p.amount)||0)}`],pre:['c-pre',d.prepaidThrough?`Prepaid through ${monthName(d.prepaidThrough)}`:'Prepaid'],late:['c-late',`${monthName(curYM)}: late`],due:['c-due',`${monthName(curYM)}: not received yet`],up:['p-mute','Starts '+monthName(d.startMonth||curYM)],na:['p-mute',d.startMonth>'2090'?'No fixed schedule':'Not started']}[c.k];
+  const stat={rec:['c-rec',`${monthName(curYM)}: received ${fmt(+(c.p&&c.p.amount)||0)}`],pre:['c-pre',d.prepaidThrough?`Prepaid through ${monthName(d.prepaidThrough)}`:'Prepaid'],late:['c-late',`${monthName(curYM)}: late`],due:['c-due',`${monthName(curYM)}: not received yet`],up:['p-mute','Starts '+monthName(d.startMonth||curYM)],na:['p-mute',d.startMonth>'2090'?'No fixed schedule':(d.startMonth>curYM?'Expected from '+monthName(d.startMonth):'Not started')]}[c.k];
   return el('div',{class:'card'},
-    el('div',{class:'row'},el('h3',{text:d.stream}),el('span',{class:'spacer'}),el('span',{class:'pill '+stat[0],text:stat[1]})),
+    el('div',{class:'row',style:'align-items:flex-start'},el('div',{},el('h3',{text:String(d.name||'').replace(/^(Eric|Sean)\s*[–-]\s*/,'')||d.stream}),el('div',{class:'muted small',text:d.stream})),el('span',{class:'spacer'}),el('span',{class:'pill '+stat[0],text:stat[1]})),
     el('div',{class:'dealstat'},el('span',{},el('b',{text:fmt(ytd,0)}),' received in '+YEAR),d.expectedMonthly?el('span',{class:'muted',text:`Expected ${fmt(d.expectedMonthly)}/mo`}):null),
     el('dl',{class:'kv'},
       d.invested?[el('dt',{text:'Invested'}),el('dd',{class:'num',text:fmt(d.invested,0)})]:null,
