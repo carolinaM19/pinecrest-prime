@@ -25,7 +25,8 @@ button.cell:disabled{opacity:1;cursor:default}
 </style>"""
 login="""<div class="login" id="login" hidden>
   <div class="login-card">
-    <h1>Pinecrest Prime LLC</h1>
+    <h1>Home &amp; Holdings</h1>
+    <p class="muted small" style="margin:-8px 0 0">Pinecrest Prime LLC</p>
     <p class="muted" style="margin:0">Enter the password to see Luca’s income, house expenses and documents.</p>
     <form id="loginForm">
       <label class="f" for="loginPw">Password</label>

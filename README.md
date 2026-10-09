@@ -1,4 +1,4 @@
-# Pinecrest Prime LLC – dashboard
+# Home & Holdings | Pinecrest Prime LLC
 
 A private, view-only dashboard of Luca's investment income and house expenses.
 
