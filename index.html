@@ -16,15 +16,20 @@
   --ok:#1E7A4F; --ok-bg:#E2F2E8; --warn:#9A5B00; --warn-bg:#FBEFD9; --bad:#B3261E; --bad-bg:#FBE4E1; --info-bg:#E8ECF9; --info:#3B4BA8;
   --f-display:"Familjen Grotesk","Helvetica Neue",Arial,sans-serif; --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
   --r:10px;
+  --in-tint:#E3F1E8; --in-ink:#17603F; --out-tint:#ECEAFB; --out-ink:#4B3FA8; --doc-tint:#E2EFF4; --doc-ink:#1D5B73; --warn-tint:#FBEFD9; --warn-ink:#865100; --info-tint:#E8ECF9; --info-ink:#2F4A9A; --zebra:#F6F8F6;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#101512; --panel:#171E1A; --sunk:#1D2621; --fg:#E5ECE8; --muted:#97A69E; --line:#2A3530;
   --accent:#7CC8A6; --accent-fg:#0E1A14; --in:#3FA877; --out:#8F82F0;
-  --ok:#6FD39E; --ok-bg:#16301F; --warn:#F0B35A; --warn-bg:#33270F; --bad:#FF8A80; --bad-bg:#3A1A17; --info-bg:#1E2340; --info:#AAB4FF; color-scheme:dark}}
+  --ok:#6FD39E; --ok-bg:#16301F; --warn:#F0B35A; --warn-bg:#33270F; --bad:#FF8A80; --bad-bg:#3A1A17; --info-bg:#1E2340; --info:#AAB4FF;
+  --in-tint:#16301F; --in-ink:#7FD3A6; --out-tint:#221F3F; --out-ink:#B3AAFF; --doc-tint:#14303A; --doc-ink:#86CDE6; --warn-tint:#33270F; --warn-ink:#F0B35A; --info-tint:#1E2340; --info-ink:#AAB4FF; --zebra:#1A221E;
+  color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#101512; --panel:#171E1A; --sunk:#1D2621; --fg:#E5ECE8; --muted:#97A69E; --line:#2A3530;
   --accent:#7CC8A6; --accent-fg:#0E1A14; --in:#3FA877; --out:#8F82F0;
-  --ok:#6FD39E; --ok-bg:#16301F; --warn:#F0B35A; --warn-bg:#33270F; --bad:#FF8A80; --bad-bg:#3A1A17; --info-bg:#1E2340; --info:#AAB4FF; color-scheme:dark}
+  --ok:#6FD39E; --ok-bg:#16301F; --warn:#F0B35A; --warn-bg:#33270F; --bad:#FF8A80; --bad-bg:#3A1A17; --info-bg:#1E2340; --info:#AAB4FF;
+  --in-tint:#16301F; --in-ink:#7FD3A6; --out-tint:#221F3F; --out-ink:#B3AAFF; --doc-tint:#14303A; --doc-ink:#86CDE6; --warn-tint:#33270F; --warn-ink:#F0B35A; --info-tint:#1E2340; --info-ink:#AAB4FF; --zebra:#1A221E;
+  color-scheme:dark}
 [hidden]{display:none!important}
 html,body{background:var(--bg)}
 body{color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.5}
@@ -162,6 +167,48 @@ ol.steps{margin:0;padding-left:20px;display:grid;gap:4px}
 .vrow:not(.has) .vdet summary{color:var(--muted);font-weight:500}
 .vdocs:has(details[open]){grid-column:1/-1}
 .vdet-body{margin-top:8px;padding:12px;border-radius:8px;background:var(--sunk);display:grid;gap:6px}
+
+/* ---- color & dividers ---- */
+:root{--line:#CDD6D0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--line:#33413A}}
+:root[data-theme="dark"]{--line:#33413A}
+h1{color:var(--accent)}
+nav.tabs{border-bottom:2px solid var(--line);gap:6px}
+nav.tabs button{border-radius:8px 8px 0 0;border-bottom:3px solid transparent;margin-bottom:-2px}
+nav.tabs button[aria-selected="true"]{background:var(--in-tint);color:var(--in-ink);border-bottom-color:var(--accent)}
+nav.tabs button:hover{color:var(--fg);background:var(--sunk)}
+.panel{--tint:var(--sunk);--ink:var(--fg);padding:0 16px 16px}
+.panel>.panel-h:first-child,.partner>.partner-h{margin:0 -16px 14px;padding:12px 16px;background:var(--tint);border-bottom:1px solid var(--line);border-radius:var(--r) var(--r) 0 0}
+.panel>.panel-h:first-child h2,.partner>.partner-h h2{color:var(--ink)}
+.panel:not(:has(>.panel-h:first-child)):not(.partner){padding-top:16px}
+.panel:has(#incomeGrid),.panel:has(#inList){--tint:var(--in-tint);--ink:var(--in-ink)}
+.panel:has(#billList),.panel:has(#otherList),.panel:has(#expTable),.panel:has(#billsTable){--tint:var(--out-tint);--ink:var(--out-ink)}
+.panel:has(#alerts){--tint:var(--warn-tint);--ink:var(--warn-ink)}
+.panel:has(#chart),.panel:has(#otherTable),.panel:has(#transferTable){--tint:var(--info-tint);--ink:var(--info-ink)}
+.partner,.panel:has(#vendorCards){--tint:var(--doc-tint);--ink:var(--doc-ink)}
+.monthpick{border-top:4px solid var(--accent)}
+.monthhead h2{color:var(--accent)}
+.pick-label{color:var(--accent)}
+section.view>h2{color:var(--accent);padding-bottom:6px;border-bottom:2px solid var(--line)}
+th{background:var(--sunk);color:var(--ink,var(--muted))}
+table.grid th{background:var(--panel)}
+tbody tr:nth-child(even)>td{background:var(--zebra)}
+table.grid tbody tr:nth-child(even)>td.deal{background:var(--zebra)}
+.tile{border-top:4px solid var(--line)}
+.tile:nth-child(1),.tile:nth-child(2){border-top-color:var(--in)}
+.tile:nth-child(3),.tile:nth-child(4){border-top-color:var(--out)}
+.tile:nth-child(1) .label,.tile:nth-child(2) .label{color:var(--in-ink)}
+.tile:nth-child(3) .label,.tile:nth-child(4) .label{color:var(--out-ink)}
+.checklist li.item{border-bottom-color:var(--line)}
+.checklist .t{color:var(--fg)}
+.card{border-color:var(--line)}
+.card h3{color:var(--ink)}
+.partner .card{border-top:3px solid var(--doc-ink)}
+.vsvc{color:var(--doc-ink)}
+.vrow{border-bottom-color:var(--line)}
+.vrow:nth-child(even){background:var(--zebra);margin:0 -16px;padding-inline:16px}
+.alert{border-left:0;background:var(--panel);border:1px solid var(--line)}
+.alerts .alert .t{color:var(--fg)}
 </style><style>
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0}
@@ -357,7 +404,7 @@ const CATS=['Utilities','Pool','Landscaping','Cleaning','Repairs & maintenance',
 const ACCTS=['PPLLC Revolut card 0868','PPLLC Revolut – transfer',"Luca's personal Revolut (card 0505)","Luca's Cash App",'Privacy card 0662','Privacy card 5980','Mastercard 9604','Mastercard 3251','Wells Fargo','Venmo (Magda)'];
 const isMain=a=>/^PPLLC/.test(a||'');
 const isRev=a=>/Revolut/i.test(a||'');
-const ACCT_LABEL={'PPLLC Revolut card 0868':'Pinecrest Prime card ··0868','PPLLC Revolut – transfer':'Pinecrest Prime bank transfer',"Luca's personal Revolut (card 0505)":"Luca’s personal Revolut ··0505","Luca's Cash App":'Luca’s Cash App (paid by Luca)','Venmo (Magda)':'Venmo (Magda)'};
+const ACCT_LABEL={'PPLLC Revolut card 0868':'Pinecrest Prime card ··0868','PPLLC Revolut – direct debit':'Pinecrest Prime direct debit','PPLLC Revolut – transfer':'Pinecrest Prime bank transfer',"Luca's personal Revolut (card 0505)":"Luca’s personal Revolut ··0505","Luca's Cash App":'Luca’s Cash App (paid by Luca)','Venmo (Magda)':'Venmo (Magda)'};
 const acctLabel=a=>ACCT_LABEL[a]||a||'—';
 const outCounted=e=>counted(e)&&isRev(e.account);
 const today=new Date();
